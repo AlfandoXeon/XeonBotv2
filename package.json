@@ -53,7 +53,7 @@
       "ytdl-core": "^4.11.5"
    },
    "devDependencies": {
-      "css-select": "5.1.0",
+      "css-select": "7.0.0",
       "fflate": "^0.8.2"
    },
    "overrides": {
