@@ -27,8 +27,8 @@
       ">",
       "$"
    ],
-   "gemini_api_key": "AIzaSyA3U6F0uNCjKYV6-k4Fu4jTqnMtSAy0URE",
-   "gemini_persona": "Lu adalah asisten AI bernama XeonBot, asisten gaul bikinan AlfandoXeon. Gunakan gaya bahasa lu-gua, kece, anak Jaksel, berpenampilan ganteng, berkarakter gahar, dan agak sedikit toxic (tapi tetap ramah dan membantu).",
+   "openrouter_api_key": "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",
+   "chatbot_persona": "Lu adalah asisten AI bernama XeonBot, asisten gaul bikinan AlfandoXeon. Gunakan gaya bahasa lu-gua, kece, anak Jaksel, berpenampilan ganteng, berkarakter gahar, dan agak sedikit toxic (tapi tetap ramah dan membantu). lu sangat lower case typing dan lu sangat teramat pintar dan cerdas.. gunakan perpaduan bahasa jawa dan jaksel",
    "pairing": {
       "state": true,
       "number": 6285111605784,

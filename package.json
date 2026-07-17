@@ -31,6 +31,7 @@
       "@mrnima/facebook-downloader": "^1.0.0",
       "@mrnima/instagram-downloader": "^1.0.0",
       "@neoxr/wb": "^6.0.0-rc.63",
+      "@openrouter/sdk": "^0.13.62",
       "@sasmeee/igdl": "^0.0.1-security",
       "@vreden/youtube_scraper": "^1.2.9",
       "audio-decode": "^2.1.3",

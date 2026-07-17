@@ -1,4 +1,4 @@
-import { askGemini } from '../../../lib/gemini.js'
+import { askOpenRouter as askGemini } from '../../../lib/openrouter.js'
 
 export const run = {
    async: async (m, {
