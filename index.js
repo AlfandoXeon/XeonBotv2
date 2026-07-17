@@ -6,6 +6,7 @@ import path from 'path'
 import CFonts from 'cfonts'
 import { fileURLToPath } from 'url'
 import { Utils } from '@neoxr/wb'
+import http from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -91,3 +92,12 @@ CFonts.say('Github : https://github.com/neoxr/neoxr-bot', {
 
 start()
 startAutoClean()
+
+// Simple HTTP server for Render port binding
+const port = process.env.PORT || 8080
+http.createServer((req, res) => {
+   res.writeHead(200, { 'Content-Type': 'text/plain' })
+   res.end('XeonBot is active!\n')
+}).listen(port, () => {
+   console.log(`Web server listening on port ${port} for Render port binding.`)
+})
