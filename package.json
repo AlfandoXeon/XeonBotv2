@@ -30,7 +30,7 @@
       "@google/generative-ai": "^0.24.1",
       "@mrnima/facebook-downloader": "^1.0.0",
       "@mrnima/instagram-downloader": "^1.0.0",
-      "@neoxr/wb": "^6.0.0-rc.63",
+      "@neoxr/wb": "^6.0.0-rc.67",
       "@openrouter/sdk": "^0.13.62",
       "@sasmeee/igdl": "^0.0.1-security",
       "@vreden/youtube_scraper": "^1.2.9",
