@@ -1,5 +1,5 @@
 export const run = {
-   usage: ['autobackup', 'autodownload', 'antispam', 'debug', 'groupmode', 'multiprefix', 'noprefix', 'online', 'self', 'notifier'],
+   usage: ['autobackup', 'autodownload', 'antispam', 'debug', 'groupmode', 'multiprefix', 'noprefix', 'online', 'self', 'notifier', 'chatbotai'],
    use: 'on / off',
    category: 'owner',
    async: async (m, {
