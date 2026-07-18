@@ -1,4 +1,4 @@
-import { askOpenRouter as askGemini } from '../../../lib/openrouter.js'
+import { askPollinations as askGemini } from '../../../lib/pollinations.js'
 
 export const run = {
    async: async (m, {
@@ -38,16 +38,13 @@ export const run = {
             userPrompt = `[Context - Pesan yang sedang lu reply/jawab: "${m.quoted.text}"]\n\nPesan baru dari user: ${body}`
          }
 
-         // Query Gemini with the user message, history session, and commands list
+         // Query Pollinations with the user message, history session, and commands list
          const reply = await askGemini(m.sender, userPrompt, commandListStr)
 
          // Reply to the user
          await client.reply(m.chat, reply, m)
       } catch (e) {
-         console.error('Gemini Chatbot Event Handler Error:', e)
-         if (e.message && (e.message.includes('429') || e.message.includes('quota'))) {
-            await client.reply(m.chat, `⚠️ *XeonBot AI Limit Notification*\n\nYo bro, sori banget kuota request Gemini API key lu udah abis (kena rate limit 429 dari Google). \n\nCoba tunggu sekitar 1-2 menit lagi ya anjir, atau ganti API Key lu di *config.json* biar gacor lagi!`, m)
-         }
+         console.error('Chatbot Event Handler Error:', e)
       }
    }
 }
