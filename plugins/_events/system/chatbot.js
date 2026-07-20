@@ -46,10 +46,16 @@ export const run = {
          const pushName = m.pushName || m.name || ''
          const firstName = pushName.trim().split(/\s+/)[0] || 'User'
 
+         // Truncate incoming message if it is extremely long
+         const truncatedBody = body.length > 1500 ? body.slice(0, 1500) + '... (pesan dipotong karena terlalu panjang)' : body
+
          // Handle replied/quoted message context
-         let userPrompt = body
+         let userPrompt = truncatedBody
          if (m.quoted && m.quoted.text) {
-            userPrompt = `[Context - Pesan yang sedang lu reply/jawab: "${m.quoted.text}"]\n\nPesan baru dari user: ${body}`
+            const quotedText = m.quoted.text.length > 1000 
+               ? m.quoted.text.slice(0, 1000) + '... (konten dipotong karena terlalu panjang)' 
+               : m.quoted.text
+            userPrompt = `[Context - Pesan yang sedang lu reply/jawab: "${quotedText}"]\n\nPesan baru dari user: ${truncatedBody}`
          }
 
          // Query Groq with the user message, history session, user first name, and commands list
