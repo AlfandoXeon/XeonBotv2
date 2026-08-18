@@ -1,8 +1,9 @@
 {
   "jid": "6289694335918@s.whatsapp.net",
-  "from": "120363429559374228@g.us",
+  "from": "120363409490920248@g.us",
   "participant": "168586257686633@lid",
-  "sts": "1784221413978110",
+  "sts": "1787071935968911",
+  "offline": "0",
   "verified_level": "unknown",
   "notify": "dinosaur",
   "addressing_mode": "lid",

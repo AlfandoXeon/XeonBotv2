@@ -1,7 +1,9 @@
 {
   "jid": "6285764175824@s.whatsapp.net",
-  "from": "194940093104173@lid",
-  "sts": "1787070793972287",
+  "from": "120363409490920248@g.us",
+  "participant": "194940093104173@lid",
+  "sts": "1787073725493616",
   "notify": "𝙏𝙮𝙤𝙤 𝘼𝙡𝙛𝙖𝙣𝙙𝙤🇮🇩",
-  "sender_pn": "6285764175824@s.whatsapp.net"
+  "addressing_mode": "lid",
+  "participant_pn": "6285764175824@s.whatsapp.net"
 }
