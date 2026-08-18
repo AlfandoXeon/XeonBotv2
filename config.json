@@ -27,8 +27,8 @@
       ">",
       "$"
    ],
-    "groq_api_key": "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",
-     "chatbot_persona": "Lihat file persona.txt di folder root untuk mengedit persona bot Anda.",
+   "groq_api_key": "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",
+   "chatbot_persona": "Lihat file persona.txt di folder root untuk mengedit persona bot Anda.",
    "pairing": {
       "state": true,
       "number": 6285111605784,
