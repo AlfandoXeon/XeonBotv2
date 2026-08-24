@@ -5,12 +5,18 @@ import './error.js'
 import './lib/config.js'
 import './lib/functions.js'
 import bytes from 'bytes'
+import fs from 'fs'
 import fsPromise from 'fs/promises'
 import colors from 'colors'
 import cron from 'node-cron'
 import extra from './lib/listeners-extra.js'
 import { models, structure } from './lib/models.js'
 import system from './lib/adapter.js'
+
+// Pastikan folder temp selalu ada agar sendMessageModify / download media tidak error ENOENT
+if (!fs.existsSync('./temp')) {
+   fs.mkdirSync('./temp', { recursive: true })
+}
 
 const connect = async () => {
    try {
