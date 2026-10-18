@@ -1,0 +1,11 @@
+node_modules
+session
+session_direct
+session_test
+temp
+.git
+.github
+.cache
+scratch
+*.log
+.env

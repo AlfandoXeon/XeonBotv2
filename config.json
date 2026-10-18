@@ -3,7 +3,7 @@
    "owner_name": "AlfandoXeon()",
    "database": "data",
    "limit": 100,
-   "ram_limit": "900mb",
+   "ram_limit": "450mb",
    "cpu_limit": true,
    "cpu_threshold": 85,
    "max_upload": 204800,
