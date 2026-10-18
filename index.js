@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url'
 import { Utils } from '@neoxr/wb'
 import http from 'http'
 
+import { createWebServer } from './lib/web-server.js'
+import crypto from 'node:crypto'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -43,6 +46,21 @@ const cleanTemp = async () => {
    }
 }
 
+const getTempSize = async () => {
+   let total = 0
+   try {
+      const files = await fs.readdir(TEMP_DIR)
+      for (const file of files) {
+         if (file.endsWith('.file')) continue
+         try {
+            const stats = await fs.stat(path.join(TEMP_DIR, file))
+            if (stats.isFile()) total += stats.size
+         } catch { }
+      }
+   } catch { }
+   return total
+}
+
 const startAutoClean = async () => {
    await ensureTempDir()
    cleanTemp()
@@ -50,18 +68,84 @@ const startAutoClean = async () => {
 }
 
 let p = null
+let webServer = null
+const pendingIpc = new Map()
+
+function ipcRequest(action, payload = {}, timeoutMs = 4000) {
+   return new Promise((resolve, reject) => {
+      if (!p || !p.connected) {
+         return reject(new Error('Worker bot sedang tidak aktif'))
+      }
+      const reqId = crypto.randomUUID()
+      const timer = setTimeout(() => {
+         pendingIpc.delete(reqId)
+         reject(new Error('IPC request timeout'))
+      }, timeoutMs)
+
+      pendingIpc.set(reqId, { resolve, reject, timer })
+      p.send({ type: 'ipc_req', reqId, action, payload })
+   })
+}
+
+function restartWorker() {
+   if (p) {
+      console.log('Restarting worker from Web Panel / IPC...')
+      p.kill()
+      p = null
+   } else {
+      start()
+   }
+}
+
+async function resetSessionAndRestart() {
+   const sessionDir = path.resolve('./session')
+   try {
+      const files = await fs.readdir(sessionDir).catch(() => [])
+      await Promise.all(
+         files.map(file => fs.rm(path.join(sessionDir, file), { recursive: true, force: true }).catch(() => {}))
+      )
+   } catch { }
+   restartWorker()
+}
+
 function start() {
    const args = [path.join(__dirname, 'client.js'), ...process.argv.slice(2)]
    p = spawn(process.argv[0], args, {
-      stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+      stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
+      env: { ...process.env, FORCE_COLOR: '1' }
    })
-      .on('message', data => {
-         if (data === 'reset') {
-            console.log('Restarting...')
-            p.kill()
-            p = null
-         }
+
+   if (p.stdout) {
+      p.stdout.on('data', chunk => {
+         process.stdout.write(chunk)
+         if (webServer) webServer.pushSystemLog(chunk.toString(), 'INFO')
       })
+   }
+
+   if (p.stderr) {
+      p.stderr.on('data', chunk => {
+         process.stderr.write(chunk)
+         if (webServer) webServer.pushSystemLog(chunk.toString(), 'ERR')
+      })
+   }
+
+   p.on('message', data => {
+      if (data === 'reset') {
+         restartWorker()
+         return
+      }
+      if (data && typeof data === 'object') {
+         if (data.type === 'chat_log' && webServer) {
+            webServer.pushChatLog(data.data)
+         } else if (data.type === 'ipc_res' && data.reqId && pendingIpc.has(data.reqId)) {
+            const pending = pendingIpc.get(data.reqId)
+            clearTimeout(pending.timer)
+            pendingIpc.delete(data.reqId)
+            if (data.ok) pending.resolve(data.data)
+            else pending.reject(new Error(data.error || 'IPC Error'))
+         }
+      }
+   })
       .on('exit', code => {
          console.error('Exited with code:', code)
          start()
@@ -90,14 +174,14 @@ CFonts.say('Github : https://github.com/neoxr/neoxr-bot', {
    align: 'center'
 })
 
+webServer = createWebServer({
+   ipcRequest,
+   restartWorker,
+   resetSessionAndRestart,
+   cleanTemp,
+   getTempSize,
+   isWorkerRunning: () => Boolean(p && p.connected)
+})
+
 start()
 startAutoClean()
-
-// // Simple HTTP server for Render port binding
-// const port = process.env.PORT || 8080
-// http.createServer((req, res) => {
-//    res.writeHead(200, { 'Content-Type': 'text/plain' })
-//    res.end('XeonBot is active!\n')
-// }).listen(port, () => {
-//    console.log(`Web server listening on port ${port} for Render port binding.`)
-// })

@@ -126,6 +126,22 @@ export default async (client, ctx) => {
          console.log(line1)
          console.log(line2)
          console.log(borderBottom)
+
+         if (typeof process.send === 'function') {
+            process.send({
+               type: 'chat_log',
+               data: {
+                  time,
+                  senderName: sender,
+                  senderJid: m.sender || '',
+                  room,
+                  isGroup: Boolean(m.isGroup),
+                  isCmd,
+                  logType,
+                  content: String(content || '').slice(0, 500)
+               }
+            })
+         }
       }
 
       plugins = Object.fromEntries(Object.entries(plugins).filter(([dir, _]) => !setting.pluginDisable.includes(path.basename(dir, '.js'))))

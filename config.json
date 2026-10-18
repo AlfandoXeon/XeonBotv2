@@ -27,7 +27,7 @@
       ">",
       "$"
    ],
-   "groq_api_key": "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",
+   "groq_api_key": "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",
    "chatbot_persona": "Lihat file persona.txt di folder root untuk mengedit persona bot Anda.",
    "pairing": {
       "state": true,
@@ -40,7 +40,7 @@
       "version": [
          2,
          3000,
-         1040735178
+         1050773686
       ],
       "code": "XEONBOT1"
    }
