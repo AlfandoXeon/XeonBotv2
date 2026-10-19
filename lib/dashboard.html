@@ -527,6 +527,10 @@
                      <label>Multi Prefix (pisahkan dengan koma)</label>
                      <input type="text" id="set_prefix" />
                   </div>
+                  <div class="field">
+                     <label>Path Audio Menu (menu_audio)</label>
+                     <input type="text" id="cfg_menu_audio" placeholder="./media/audio/menuSong.mp3" />
+                  </div>
                </div>
                <button type="submit" class="btn btn-primary">Simpan Konfigurasi</button>
             </form>
@@ -589,6 +593,7 @@
 
       const SWITCH_ITEMS = {
          chatbotai: 'AI Chatbot',
+         menuaudio: 'Menu Audio',
          autodownload: 'Auto Download',
          self: 'Self Mode (Owner Only)',
          groupmode: 'Group Mode',
@@ -804,10 +809,13 @@
             }
             renderConsole()
 
+            const cfg = data.config || {}
             state.setting = w.setting || {}
+            if (cfg.menuaudio !== undefined) {
+               state.setting.menuaudio = Boolean(cfg.menuaudio)
+            }
             renderSwitches()
 
-            const cfg = data.config || {}
             document.getElementById('pair_number').value = cfg.pairing?.number || ''
             document.getElementById('pair_code').value = cfg.pairing?.code || ''
             document.getElementById('cfg_owner').value = cfg.owner || ''
@@ -816,6 +824,7 @@
             document.getElementById('cfg_limit').value = cfg.limit ?? 100
             document.getElementById('cfg_ram_limit').value = cfg.ram_limit || '900mb'
             document.getElementById('cfg_cooldown').value = cfg.cooldown ?? 3
+            document.getElementById('cfg_menu_audio').value = cfg.menu_audio || './media/audio/menuSong.mp3'
             document.getElementById('set_onlyprefix').value = state.setting.onlyprefix || '+'
             document.getElementById('set_prefix').value = Array.isArray(state.setting.prefix) ? state.setting.prefix.join(', ') : '., #, !, /'
             document.getElementById('personaText').value = data.persona || ''
@@ -884,7 +893,8 @@
             groq_api_key: document.getElementById('cfg_groq_api_key').value.trim(),
             limit: Number(document.getElementById('cfg_limit').value),
             ram_limit: document.getElementById('cfg_ram_limit').value.trim(),
-            cooldown: Number(document.getElementById('cfg_cooldown').value)
+            cooldown: Number(document.getElementById('cfg_cooldown').value),
+            menu_audio: document.getElementById('cfg_menu_audio').value.trim() || './media/audio/menuSong.mp3'
          }
          const setBody = {
             onlyprefix: document.getElementById('set_onlyprefix').value.trim(),

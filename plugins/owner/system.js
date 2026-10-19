@@ -1,5 +1,7 @@
+import fs from 'node:fs'
+
 export const run = {
-   usage: ['autobackup', 'autodownload', 'antispam', 'debug', 'groupmode', 'multiprefix', 'noprefix', 'online', 'self', 'notifier', 'chatbotai'],
+   usage: ['autobackup', 'autodownload', 'antispam', 'debug', 'groupmode', 'multiprefix', 'noprefix', 'online', 'self', 'notifier', 'chatbotai', 'menuaudio'],
    use: 'on / off',
    category: 'owner',
    async: async (m, {
@@ -7,6 +9,7 @@ export const run = {
       args,
       isPrefix,
       command,
+      Config,
       Utils
    }) => {
       let system = global.db.setting
@@ -18,6 +21,16 @@ export const run = {
       let status = option != 'on' ? false : true
       if (system[type] == status) return client.reply(m.chat, Utils.texted('bold', `🚩 ${Utils.ucword(command)} has been ${option == 'on' ? 'activated' : 'inactivated'} previously.`), m)
       system[type] = status
+      if (type === 'menuaudio') {
+         Config.menuaudio = status
+         try {
+            const cfgRaw = fs.readFileSync('./config.json', 'utf-8')
+            const cfgJson = JSON.parse(cfgRaw)
+            cfgJson.menuaudio = status
+            fs.writeFileSync('./config.json', JSON.stringify(cfgJson, null, 3), 'utf-8')
+            if (system._webConfigBackup) system._webConfigBackup.menuaudio = status
+         } catch { }
+      }
       client.reply(m.chat, Utils.texted('bold', `🚩 ${Utils.ucword(command)} has been ${option == 'on' ? 'activated' : 'inactivated'} successfully.`), m)
    },
    owner: true

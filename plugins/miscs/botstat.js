@@ -80,6 +80,7 @@ const buildStatisticMessage = (Utils, stats, system) => {
    systemStats += `${formatCheck(system.notifier)}  Expiry Notification\n`
    systemStats += `${formatCheck(system.self)}  Self Mode\n`
    systemStats += `${formatCheck(system.noprefix)}  No Prefix\n`
+   systemStats += `${formatCheck(system.menuaudio)}  Menu Audio\n`
    systemStats += `Prefix : ${bold(prefixText)}`
    if (system.style !== 2) systemStats += `\nReset At : ${resetAt}`
 

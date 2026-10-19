@@ -71,11 +71,24 @@ process.on('message', async msg => {
 
       if (action === 'update_setting') {
          if (!global.db?.setting) throw new Error('Database belum siap.')
-         const allowedBoolean = ['chatbotai', 'autodownload', 'antispam', 'self', 'groupmode', 'online', 'multiprefix', 'noprefix', 'autobackup', 'notifier', 'debug']
+         const allowedBoolean = ['chatbotai', 'menuaudio', 'autodownload', 'antispam', 'self', 'groupmode', 'online', 'multiprefix', 'noprefix', 'autobackup', 'notifier', 'debug']
          for (const key of allowedBoolean) {
             if (payload[key] !== undefined) {
                global.db.setting[key] = Boolean(payload[key])
             }
+         }
+         if (payload.menuaudio !== undefined) {
+            const audioState = Boolean(payload.menuaudio)
+            Config.menuaudio = audioState
+            try {
+               const rawCfg = await fsPromise.readFile('./config.json', 'utf-8').catch(() => '{}')
+               const parsedCfg = JSON.parse(rawCfg)
+               parsedCfg.menuaudio = audioState
+               await fsPromise.writeFile('./config.json', JSON.stringify(parsedCfg, null, 3), 'utf-8')
+               if (global.db.setting._webConfigBackup) {
+                  global.db.setting._webConfigBackup.menuaudio = audioState
+               }
+            } catch { }
          }
          if (payload.onlyprefix !== undefined && payload.onlyprefix) global.db.setting.onlyprefix = String(payload.onlyprefix)
          if (Array.isArray(payload.prefix)) global.db.setting.prefix = payload.prefix
@@ -99,6 +112,12 @@ process.on('message', async msg => {
          if (cfg.max_upload !== undefined) Config.max_upload = cfg.max_upload
          if (cfg.max_upload_free !== undefined) Config.max_upload_free = cfg.max_upload_free
          if (cfg.groq_api_key !== undefined) Config.groq_api_key = cfg.groq_api_key
+         if (cfg.menuaudio !== undefined) {
+            Config.menuaudio = Boolean(cfg.menuaudio)
+            if (global.db?.setting) global.db.setting.menuaudio = Boolean(cfg.menuaudio)
+         }
+         if (cfg.menu_audio !== undefined) Config.menu_audio = cfg.menu_audio
+         if (cfg.menu_audio_ptt !== undefined) Config.menu_audio_ptt = cfg.menu_audio_ptt
          if (cfg.pairing) Config.pairing = { ...(Config.pairing || {}), ...cfg.pairing }
 
          if (global.db?.setting) {
@@ -240,9 +259,22 @@ const connect = async () => {
 
             // Restore config.json & persona.txt backup from DB if present (useful on Render ephemeral disk)
             if (global.db?.setting?._webConfigBackup) {
-               const b = global.db.setting._webConfigBackup
+               let localCfg = {}
+               try {
+                  localCfg = JSON.parse(await fsPromise.readFile('./config.json', 'utf-8'))
+               } catch { }
+               const b = { ...global.db.setting._webConfigBackup, ...localCfg }
                Object.assign(Config, b)
+               global.db.setting._webConfigBackup = b
                await fsPromise.writeFile('./config.json', JSON.stringify(b, null, 3), 'utf-8').catch(() => {})
+            }
+
+            if (global.db?.setting) {
+               if (Config.menuaudio !== undefined) {
+                  global.db.setting.menuaudio = Boolean(Config.menuaudio)
+               } else if (global.db.setting.menuaudio === undefined) {
+                  global.db.setting.menuaudio = models.setting.menuaudio ?? true
+               }
             }
             if (global.db?.setting?._webPersonaBackup) {
                await fsPromise.writeFile('./persona.txt', global.db.setting._webPersonaBackup, 'utf-8').catch(() => {})

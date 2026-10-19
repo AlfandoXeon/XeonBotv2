@@ -1,5 +1,6 @@
 import { Version } from '@neoxr/wb'
 import fs from 'node:fs'
+import path from 'node:path'
 
 export const run = {
    usage: ['menu', 'help', 'command'],
@@ -15,6 +16,42 @@ export const run = {
       Utils
    }) => {
       try {
+         const sendMenuAudio = async () => {
+            try {
+               if (setting.menuaudio === false || Config.menuaudio === false || Config.menu_audio === false) return
+               const targetPath = Config.menu_audio || './media/audio/menuSong.mp3'
+               let audioFile = null
+
+               if (fs.existsSync(targetPath)) {
+                  const stat = fs.statSync(targetPath)
+                  if (stat.isDirectory()) {
+                     const files = fs.readdirSync(targetPath).filter(f => /\.(mp3|ogg|opus|wav|m4a)$/i.test(f))
+                     if (files.length > 0) {
+                        const chosen = files.includes('menuSong.mp3') ? 'menuSong.mp3' : files[Math.floor(Math.random() * files.length)]
+                        audioFile = path.join(targetPath, chosen)
+                     }
+                  } else if (stat.isFile()) {
+                     audioFile = targetPath
+                  }
+               } else if (fs.existsSync('./media/audio')) {
+                  const files = fs.readdirSync('./media/audio').filter(f => /\.(mp3|ogg|opus|wav|m4a)$/i.test(f))
+                  if (files.length > 0) {
+                     const chosen = files.includes('menuSong.mp3') ? 'menuSong.mp3' : files[Math.floor(Math.random() * files.length)]
+                     audioFile = path.join('./media/audio', chosen)
+                  }
+               }
+
+               if (audioFile && fs.existsSync(audioFile)) {
+                  const audioBuffer = fs.readFileSync(audioFile)
+                  await client.sendFile(m.chat, audioBuffer, path.basename(audioFile), '', m, {
+                     ptt: Boolean(Config.menu_audio_ptt)
+                  })
+               }
+            } catch (e) {
+               Utils.printError(e)
+            }
+         }
+
          const local_size = fs.existsSync('./' + Config.database + '.json') ? await Utils.formatSize(fs.statSync('./' + Config.database + '.json').size) : ''
          const library = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
          const message = setting.msg
@@ -65,7 +102,7 @@ export const run = {
                })
                print += commands.sort((a, b) => a.usage.localeCompare(b.usage)).map(v => `	◦  ${isPrefix + v.usage} ${v.use}`).join('\n')
             }
-            client.sendMessageModify(m.chat, Utils.Styles(print) + '\n\n' + global.footer, m, {
+            await client.sendMessageModify(m.chat, Utils.Styles(print) + '\n\n' + global.footer, m, {
                ads: false,
                largeThumb: true,
                type: 'preview-link',
@@ -75,6 +112,7 @@ export const run = {
                url: setting.link,
                icon: setting.icon ? Utils.isUrl(setting.icon) ? setting.icon : Buffer.from(setting.icon, 'base64') : null
             })
+            await sendMenuAudio()
          } else if (style === 2) {
             let filter = Object.entries(plugins).filter(([_, obj]) => obj.run.usage)
             let cmd = Object.fromEntries(filter)
@@ -123,7 +161,7 @@ export const run = {
                   }
                }).join('\n')
             }
-            client.sendMessageModify(m.chat, Utils.Styles(print) + '\n\n' + global.footer, m, {
+            await client.sendMessageModify(m.chat, Utils.Styles(print) + '\n\n' + global.footer, m, {
                largeThumb: true,
                type: 'preview-link',
                /* choose: landscape (default), potrait, square */
@@ -132,6 +170,7 @@ export const run = {
                url: setting.link,
                icon: setting.icon ? Utils.isUrl(setting.icon) ? setting.icon : Buffer.from(setting.icon, 'base64') : null
             })
+            await sendMenuAudio()
          } else if (style === 3) {
             let filter = Object.entries(plugins).filter(([_, obj]) => obj.run.usage)
             let cmd = Object.fromEntries(filter)
@@ -180,7 +219,7 @@ export const run = {
                   }
                }).join('\n')
             }
-            client.sendMessageModify(m.chat, print + '\n\n' + global.footer, m, {
+            await client.sendMessageModify(m.chat, print + '\n\n' + global.footer, m, {
                largeThumb: true,
                type: 'preview-link',
                /* choose: landscape (default), potrait, square */
@@ -189,6 +228,7 @@ export const run = {
                url: setting.link,
                icon: setting.icon ? Utils.isUrl(setting.icon) ? setting.icon : Buffer.from(setting.icon, 'base64') : null
             })
+            await sendMenuAudio()
          } else if (style === 4) {
             if (text) {
                let cmd = Object.entries(plugins).filter(([_, v]) => v.run.usage && v.run.category == text.trim().toLowerCase() && !setting.hidden.includes(v.run.category.toLowerCase()))
@@ -246,7 +286,7 @@ export const run = {
                      return `│  ◦  ${isPrefix + command} ${v}`
                   }
                }).join('\n')
-               client.sendMessageModify(m.chat, print + '\n\n' + global.footer, m, {
+               await client.sendMessageModify(m.chat, print + '\n\n' + global.footer, m, {
                   largeThumb: true,
                   type: 'preview-link',
                   /* choose: landscape (default), potrait, square */
@@ -255,6 +295,7 @@ export const run = {
                   url: setting.link,
                   icon: setting.icon ? Utils.isUrl(setting.icon) ? setting.icon : Buffer.from(setting.icon, 'base64') : null
                })
+               await sendMenuAudio()
             }
          } else if (style === 5) {
             if (text) {
@@ -323,12 +364,13 @@ export const run = {
                      sections
                   })
                }]
-               client.sendIAMessage(m.chat, buttons, m, {
+               await client.sendIAMessage(m.chat, buttons, m, {
                   header: '',
                   content: print,
                   footer: global.footer,
                   media: fs.readFileSync('./media/image/thumbv3.png')
                })
+               await sendMenuAudio()
             }
          } else if (style === 6) {
             if (text) {
@@ -425,7 +467,7 @@ export const run = {
                      sections
                   })
                }]
-               client.sendIAMessage(m.chat, buttons, m, {
+               await client.sendIAMessage(m.chat, buttons, m, {
                   header: global.header,
                   content: print,
                   v2: true,
@@ -438,6 +480,7 @@ export const run = {
                      button_title: 'Tap Here!'
                   }
                })
+               await sendMenuAudio()
             }
          }
       } catch (e) {

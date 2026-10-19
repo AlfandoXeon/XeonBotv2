@@ -26,18 +26,20 @@ export default async (client, ctx) => {
       if (m.isGroup && groupMetadata?.participants) {
          if (m?.sender?.endsWith('lid')) m.sender = groupMetadata.participants?.find(v =>
             v.lid === m.sender || v.id === m.sender
-         )?.phoneNumber
+         )?.phoneNumber || m.sender
 
          if (m?.quoted?.sender?.endsWith('lid')) m.quoted.sender = groupMetadata.participants?.find(v =>
             v.lid === m.quoted.sender || v.id === m.quoted.sender
-         )?.phoneNumber
+         )?.phoneNumber || m.quoted.sender
       }
+
+      if (!m?.sender) return
 
       schema(m, Config)
 
-      let groupSet = global.db.groups.get(m.chat)
-      let chats = global.db.chats.get(m.chat)
-      let users = global.db.users.get(m.sender)
+      let groupSet = global.db.groups?.get?.(m.chat) || global.db.groups?.find?.(v => v.jid === m.chat)
+      let chats = global.db.chats?.get?.(m.chat) || global.db.chats?.find?.(v => v.jid === m.chat)
+      let users = global.db.users?.get?.(m.sender) || global.db.users?.find?.(v => v.jid === m.sender)
       let setting = global.db.setting
       let isOwner = [client.decodeJid(client.user.id).replace(/@.+/, ''), Config.owner, ...setting.owners].map(v => v + '@s.whatsapp.net').includes(m.sender)
       let isPrem = users && users.premium || isOwner
@@ -166,10 +168,12 @@ export default async (client, ctx) => {
          users.lastseen = new Date() * 1
       }
       const validLids = new Set(global.db.users.map(item => item.lid).filter(lid => lid !== null))
-      global.db.users = global.db.users.filter(item => {
-         if (item.lid !== null) return true
-         return !validLids.has(item.jid)
-      })
+      for (let i = global.db.users.length - 1; i >= 0; i--) {
+         const item = global.db.users[i]
+         if (item && item.lid === null && validLids.has(item.jid)) {
+            global.db.users.splice(i, 1)
+         }
+      }
       if (chats) {
          chats.chat += 1
          chats.lastseen = new Date * 1
